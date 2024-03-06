@@ -8,6 +8,9 @@ langchain = "*"
 chromadb = "*"
 sentence-transformers = "*"
 pdfplumber = "*"
+transformers = "*"
+torch = "*"
+pandas = "*"
 
 [dev-packages]
 
