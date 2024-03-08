@@ -79,11 +79,13 @@ def get_first_place_doc(query, matching_docs):
 
 # Processing the queries from the test data
 embeddings = []
+generated_answers = []
+
 for queries in test_df["split_queries"]:
-    generated_texts = []
+    generated_answer = []
     for query in queries:
         # Get matching documents for the query
-        matching_docs = vectordb.similarity_search(query, k=4)
+        matching_docs = vectordb.similarity_search(query, k=7)
         # Find the best document
         first_place_doc = get_first_place_doc(query, matching_docs)
         # Generate prompt
@@ -95,20 +97,21 @@ for queries in test_df["split_queries"]:
         ### CODE ###
         # generated_texts.append(text)
 
-        generated_texts.append(first_place_doc.page_content.split("answer: ")[1])
+        generated_answer.append(first_place_doc.page_content.split("answer: ")[1])
 
-    generated_texts = " ".join(generated_texts)
+    generated_answer = " ".join(generated_answer)
     final_embedding_model = SentenceTransformer(
         "sentence-transformers/distiluse-base-multilingual-cased-v1"
     )
-    embeddings.append(final_embedding_model.encode(generated_texts))
+    embeddings.append(final_embedding_model.encode(generated_answer))
+    generated_answers.append(generated_answer)
 
+
+test_df["generated_answer"] = generated_answers
 
 ids = test_df["id"]
-
-
-# Generate embeddings
 columns = ["id"] + [f"vec_{i}" for i in range(512)]
-data = [[id] + list(embedding) for id, embedding in zip(ids, output)]
+data = [[id] + list(embedding) for id, embedding in zip(ids, embeddings)]
 
 submission = pd.DataFrame(data, columns=columns)
+submission.to_csv("submission.csv", index=False)
