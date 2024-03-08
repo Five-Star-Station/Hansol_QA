@@ -6,6 +6,7 @@ from kiwipiepy import Kiwi
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 from langchain.embeddings.huggingface import HuggingFaceEmbeddings
 from langchain.vectorstores import Chroma
+from sentence_transformers import SentenceTransformer
 
 # Initialize Kiwi for Korean sentence splitting
 kiwi = Kiwi()
@@ -36,6 +37,9 @@ You are an helpful assistant for construction and interior. Your task is to gene
 # Initialize embedding and reranking models
 embedding_model_name = "sentence-transformers/distiluse-base-multilingual-cased-v1"
 rerank_model_name = "Dongjin-kr/ko-reranker"
+final_embedding_model_name = (
+    "sentence-transformers/distiluse-base-multilingual-cased-v1"
+)
 
 # Set up the vector store for embeddings
 chromadb_store = "vector_store/"
@@ -68,12 +72,15 @@ def get_first_place_doc(query, matching_docs):
         logits = rerank_model(**inputs, return_dict=True).logits.view(-1).float()
         scores = exp_normalize(logits.numpy())
         max_idx = scores.argmax()
+        print(scores[max_idx])
 
     return matching_docs[max_idx]
 
 
 # Processing the queries from the test data
-for queries in test_df["split_queries"][:2]:
+output = []
+for queries in test_df["split_queries"]:
+    generated_texts = []
     for query in queries:
         # Get matching documents for the query
         matching_docs = vectordb.similarity_search(query, k=7)
@@ -83,3 +90,13 @@ for queries in test_df["split_queries"][:2]:
         prompt = PROMPT_TEMPLATE.format(
             context=first_place_doc.page_content, query=query
         )
+
+        # Generate Text
+        ### CODE ###
+        # generated_texts.append(text)
+
+    generated_texts = " ".join(generated_texts)
+    final_embedding_model = SentenceTransformer(
+        "sentence-transformers/distiluse-base-multilingual-cased-v1"
+    )
+    output.append(final_embedding_model.encode(generated_texts))
