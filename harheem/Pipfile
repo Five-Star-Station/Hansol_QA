@@ -6,6 +6,8 @@ name = "pypi"
 [packages]
 peft = "*"
 datasets = "*"
+huggingface-hub = "*"
+ipywidgets = "*"
 
 [dev-packages]
 

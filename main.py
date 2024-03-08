@@ -8,6 +8,7 @@ from langchain.embeddings.huggingface import HuggingFaceEmbeddings
 from langchain.vectorstores import Chroma
 from sentence_transformers import SentenceTransformer
 
+
 # Initialize Kiwi for Korean sentence splitting
 kiwi = Kiwi()
 
@@ -35,7 +36,7 @@ You are an helpful assistant for construction and interior. Your task is to gene
 """
 
 # Initialize embedding and reranking models
-embedding_model_name = "sentence-transformers/distiluse-base-multilingual-cased-v1"
+embedding_model_name = "osung-station/deco_embedding"
 rerank_model_name = "Dongjin-kr/ko-reranker"
 final_embedding_model_name = (
     "sentence-transformers/distiluse-base-multilingual-cased-v1"
@@ -86,7 +87,7 @@ for queries in test_df["split_queries"]:
     generated_answer = []
     for query in queries:
         # Get matching documents for the query
-        matching_docs = vectordb.similarity_search(query, k=7)
+        matching_docs = vectordb.similarity_search(query, k=5)
         # Find the best document
         first_place_doc = get_first_place_doc(query, matching_docs)
         # Generate prompt
@@ -106,6 +107,7 @@ for queries in test_df["split_queries"]:
 
 
 test_df["generated_answer"] = generated_answers
+test_df.to_csv("generated_test.csv", index=False)
 
 ids = test_df["id"]
 columns = ["id"] + [f"vec_{i}" for i in range(512)]

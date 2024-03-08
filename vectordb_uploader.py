@@ -5,7 +5,7 @@ from langchain_community.document_loaders.csv_loader import CSVLoader
 import chromadb
 
 
-embedding_model = "sentence-transformers/distiluse-base-multilingual-cased-v1"
+embedding_model = "osung-station/deco_embedding"
 chromadb_store = "vector_store/"
 
 
@@ -19,7 +19,8 @@ else:
 vectordb = Chroma.from_documents(
     documents=documents,
     embedding=HuggingFaceEmbeddings(
-        model_name=embedding_model, encode_kwargs={"normalize_embeddings": True}
+        model_name=embedding_model,
+        encode_kwargs={"normalize_embeddings": True},
     ),
     persist_directory=chromadb_store,
 )
