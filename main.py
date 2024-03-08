@@ -78,12 +78,12 @@ def get_first_place_doc(query, matching_docs):
 
 
 # Processing the queries from the test data
-output = []
+embeddings = []
 for queries in test_df["split_queries"]:
     generated_texts = []
     for query in queries:
         # Get matching documents for the query
-        matching_docs = vectordb.similarity_search(query, k=7)
+        matching_docs = vectordb.similarity_search(query, k=4)
         # Find the best document
         first_place_doc = get_first_place_doc(query, matching_docs)
         # Generate prompt
@@ -95,8 +95,20 @@ for queries in test_df["split_queries"]:
         ### CODE ###
         # generated_texts.append(text)
 
+        generated_texts.append(first_place_doc.page_content.split("answer: ")[1])
+
     generated_texts = " ".join(generated_texts)
     final_embedding_model = SentenceTransformer(
         "sentence-transformers/distiluse-base-multilingual-cased-v1"
     )
-    output.append(final_embedding_model.encode(generated_texts))
+    embeddings.append(final_embedding_model.encode(generated_texts))
+
+
+ids = test_df["id"]
+
+
+# Generate embeddings
+columns = ["id"] + [f"vec_{i}" for i in range(512)]
+data = [[id] + list(embedding) for id, embedding in zip(ids, output)]
+
+submission = pd.DataFrame(data, columns=columns)
