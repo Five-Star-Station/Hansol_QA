@@ -40,6 +40,7 @@ rerank_model_name = "Dongjin-kr/ko-reranker"
 final_embedding_model_name = (
     "sentence-transformers/distiluse-base-multilingual-cased-v1"
 )
+final_embedding_model = SentenceTransformer(final_embedding_model_name)
 
 # Set up the vector store for embeddings
 chromadb_store = "vector_store/"
@@ -100,9 +101,6 @@ for queries in test_df["split_queries"]:
         generated_answer.append(first_place_doc.page_content.split("answer: ")[1])
 
     generated_answer = " ".join(generated_answer)
-    final_embedding_model = SentenceTransformer(
-        "sentence-transformers/distiluse-base-multilingual-cased-v1"
-    )
     embeddings.append(final_embedding_model.encode(generated_answer))
     generated_answers.append(generated_answer)
 
