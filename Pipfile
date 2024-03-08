@@ -1,0 +1,19 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+kiwipiepy = "*"
+pandas = "*"
+numpy = "*"
+langchain = "*"
+chromadb = "*"
+sentence-transformers = "*"
+
+[dev-packages]
+ipykernel = "*"
+black = "*"
+
+[pipenv]
+allow_prereleases = true
