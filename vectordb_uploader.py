@@ -5,12 +5,16 @@ from langchain_community.document_loaders.csv_loader import CSVLoader
 import chromadb
 
 
-embedding_model = "osung-station/deco_embedding"
+# embedding_model = "osung-station/deco_embedding"
+embedding_model = "osung-station/ko-sroberta-multitask"
 chromadb_store = "vector_store/"
 
 
+documents = []
 loader = CSVLoader(file_path="data/answers.csv", encoding="UTF-8")
-documents = loader.load()
+documents.extend(loader.load())
+# loader = CSVLoader(file_path="data/train_combined.csv", encoding="UTF-8")
+# documents.extend(loader.load())
 client = chromadb.Client()
 if client.list_collections():
     consent_collection = client.create_collection("consent_collection")

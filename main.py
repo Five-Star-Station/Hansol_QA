@@ -7,7 +7,7 @@ from transformers import AutoModelForSequenceClassification, AutoTokenizer
 from langchain.embeddings.huggingface import HuggingFaceEmbeddings
 from langchain.vectorstores import Chroma
 from sentence_transformers import SentenceTransformer
-
+import re
 
 # Initialize Kiwi for Korean sentence splitting
 kiwi = Kiwi()
@@ -36,7 +36,8 @@ You are an helpful assistant for construction and interior. Your task is to gene
 """
 
 # Initialize embedding and reranking models
-embedding_model_name = "osung-station/deco_embedding"
+# embedding_model_name = "osung-station/deco_embedding"
+embedding_model_name = "osung-station/ko-sroberta-multitask"
 rerank_model_name = "Dongjin-kr/ko-reranker"
 final_embedding_model_name = (
     "sentence-transformers/distiluse-base-multilingual-cased-v1"
@@ -76,6 +77,7 @@ def get_first_place_doc(query, matching_docs):
         max_idx = scores.argmax()
         print(scores[max_idx])
 
+    # return sorted(zip(matching_docs, scores), key=lambda x: x[1], reverse=True)
     return matching_docs[max_idx]
 
 
@@ -83,11 +85,13 @@ def get_first_place_doc(query, matching_docs):
 embeddings = []
 generated_answers = []
 
-for queries in test_df["split_queries"]:
+test_df = pd.read_csv("test_split.csv")
+for queries in test_df["question_split"]:
+    queries = eval(queries)
     generated_answer = []
     for query in queries:
         # Get matching documents for the query
-        matching_docs = vectordb.similarity_search(query, k=10)
+        matching_docs = vectordb.similarity_search(query, k=5)
         # Find the best document
         first_place_doc = get_first_place_doc(query, matching_docs)
         # Generate prompt
