@@ -65,7 +65,7 @@ def exp_normalize(scores):
 
 # Function to get the best matching document
 def get_first_place_doc(query, matching_docs):
-    pairs = [[query, doc] for doc in matching_docs]
+    pairs = [[query, doc.page_content] for doc in matching_docs]
 
     with torch.no_grad():
         inputs = rerank_tokenizer(
