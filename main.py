@@ -65,7 +65,7 @@ def exp_normalize(scores):
 
 # Function to get the best matching document
 def get_first_place_doc(query, matching_docs):
-    pairs = [[query, doc.page_content.split("answer: ")[1]] for doc in matching_docs]
+    pairs = [[query, doc] for doc in matching_docs]
 
     with torch.no_grad():
         inputs = rerank_tokenizer(
@@ -87,7 +87,7 @@ for queries in test_df["split_queries"]:
     generated_answer = []
     for query in queries:
         # Get matching documents for the query
-        matching_docs = vectordb.similarity_search(query, k=5)
+        matching_docs = vectordb.similarity_search(query, k=10)
         # Find the best document
         first_place_doc = get_first_place_doc(query, matching_docs)
         # Generate prompt
