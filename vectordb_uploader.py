@@ -6,7 +6,7 @@ import chromadb
 
 
 # embedding_model = "osung-station/deco_embedding"
-embedding_model = "osung-station/ko-sroberta-multitask"
+embedding_model = "jhgan/ko-sroberta-multitask"
 chromadb_store = "vector_store/"
 
 

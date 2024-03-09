@@ -37,7 +37,7 @@ You are an helpful assistant for construction and interior. Your task is to gene
 
 # Initialize embedding and reranking models
 # embedding_model_name = "osung-station/deco_embedding"
-embedding_model_name = "osung-station/ko-sroberta-multitask"
+embedding_model_name = "jhgan/ko-sroberta-multitask"
 rerank_model_name = "Dongjin-kr/ko-reranker"
 final_embedding_model_name = (
     "sentence-transformers/distiluse-base-multilingual-cased-v1"
@@ -91,7 +91,7 @@ for queries in test_df["question_split"]:
     generated_answer = []
     for query in queries:
         # Get matching documents for the query
-        matching_docs = vectordb.similarity_search(query, k=5)
+        matching_docs = vectordb.similarity_search(query, k=10)
         # Find the best document
         first_place_doc = get_first_place_doc(query, matching_docs)
         # Generate prompt
