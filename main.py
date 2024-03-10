@@ -105,12 +105,9 @@ for queries in test_df["question_split"]:
             context=first_place_doc.page_content, query=query
         )
 
-        # Generate Text
-        ### CODE ###
-        # generated_texts.append(text)
         max_scores.append(max_score)
         generated_answer.append(
-            query + ": " + first_place_doc.page_content.split("answer: ")[1]
+            query + " " + first_place_doc.page_content.split("answer: ")[1]
         )
 
     answers_scores.append(max_scores)
