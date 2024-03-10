@@ -64,6 +64,10 @@ def exp_normalize(scores):
     return y / y.sum()
 
 
+# test = first_place_doc.page_content.split("answer:")[-1].split(". ")
+# pairs = [[query, i] for i in test]
+
+
 # Function to get the best matching document
 def get_first_place_doc(query, matching_docs):
     pairs = [[query, doc.page_content] for doc in matching_docs]
@@ -73,28 +77,29 @@ def get_first_place_doc(query, matching_docs):
             pairs, padding=True, truncation=True, return_tensors="pt", max_length=512
         )
         logits = rerank_model(**inputs, return_dict=True).logits.view(-1).float()
-        scores = exp_normalize(logits.numpy())
-        max_idx = scores.argmax()
-        # print(scores[max_idx])
+        # scores = exp_normalize(logits.numpy())
+        max_idx = logits.argmax()
 
     # return sorted(zip(matching_docs, scores), key=lambda x: x[1], reverse=True)
-    return matching_docs[max_idx]
+    return matching_docs[max_idx], logits[max_idx]
 
 
 # Processing the queries from the test data
 embeddings = []
 generated_answers = []
+answers_scores = []
 
 test_df = pd.read_csv("test_split.csv")
 for queries in test_df["question_split"]:
     queries = eval(queries)
     generated_answer = []
+    max_scores = []
     for query in queries:
         # Get matching documents for the query
         matching_docs = vectordb.similarity_search(query, k=30)
         # Find the best document
-        first_place_doc = get_first_place_doc(query, matching_docs)
-        print(query, first_place_doc)
+        first_place_doc, max_score = get_first_place_doc(query, matching_docs)
+        print(max_score, query, first_place_doc)
         # Generate prompt
         prompt = PROMPT_TEMPLATE.format(
             context=first_place_doc.page_content, query=query
@@ -103,15 +108,19 @@ for queries in test_df["question_split"]:
         # Generate Text
         ### CODE ###
         # generated_texts.append(text)
+        max_scores.append(max_score)
+        generated_answer.append(
+            query + ": " + first_place_doc.page_content.split("answer: ")[1]
+        )
 
-        generated_answer.append(first_place_doc.page_content.split("answer: ")[1])
-
+    answers_scores.append(max_scores)
     generated_answer = " ".join(generated_answer)
     embeddings.append(final_embedding_model.encode(generated_answer))
     generated_answers.append(generated_answer)
 
 
 test_df["generated_answer"] = generated_answers
+test_df["scores"] = answers_scores
 test_df.to_csv("generated_test.csv", index=False)
 
 ids = test_df["id"]
