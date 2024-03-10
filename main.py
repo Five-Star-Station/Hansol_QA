@@ -75,7 +75,7 @@ def get_first_place_doc(query, matching_docs):
         logits = rerank_model(**inputs, return_dict=True).logits.view(-1).float()
         scores = exp_normalize(logits.numpy())
         max_idx = scores.argmax()
-        print(scores[max_idx])
+        # print(scores[max_idx])
 
     # return sorted(zip(matching_docs, scores), key=lambda x: x[1], reverse=True)
     return matching_docs[max_idx]
@@ -91,9 +91,10 @@ for queries in test_df["question_split"]:
     generated_answer = []
     for query in queries:
         # Get matching documents for the query
-        matching_docs = vectordb.similarity_search(query, k=10)
+        matching_docs = vectordb.similarity_search(query, k=30)
         # Find the best document
         first_place_doc = get_first_place_doc(query, matching_docs)
+        print(query, first_place_doc)
         # Generate prompt
         prompt = PROMPT_TEMPLATE.format(
             context=first_place_doc.page_content, query=query
